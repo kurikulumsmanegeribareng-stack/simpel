@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Seleksi Mata Pelajaran Pilihan SMA - 5 Paket Kurikulum</title>
+    <!-- Bootstrap 5 CSS (Light Theme) -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f3f4f6; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .card-login { max-width: 450px; margin: 80px auto; border: none; box-shadow: 0 10px 25px rgba(0,0,0,0.08); border-radius: 12px; }
+        .card-dashboard { border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.04); border-radius: 10px; background: white; }
+        .sidebar-menu .nav-link { color: #333; border-radius: 6px; margin-bottom: 5px; font-weight: 500; }
+        .sidebar-menu .nav-link.active { background-color: #198754; color: white; }
+        .table-responsive { background: white; border-radius: 8px; }
+        .hidden-layout { display: none !important; }
+        
+        /* Kuesioner Custom Box */
+        .riasec-block { background-color: #ffffff; border: 1px solid #e5e7eb; border-left: 6px solid #6c757d; border-radius: 8px; padding: 20px; margin-bottom: 25px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        .block-R { border-left-color: #dc3545; }
+        .block-I { border-left-color: #0d6efd; }
+        .block-A { border-left-color: #6f42c1; }
+        .block-S { border-left-color: #198754; }
+        .block-E { border-left-color: #fd7e14; }
+        .block-C { border-left-color: #495057; }
+        
+        .question-item { margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px dashed #e5e7eb; }
+        .question-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+        
+        /* Desain Bar Skala Slider Lebih Jelas */
+        .slider-wrapper { max-width: 500px; padding: 5px 0; }
+        .form-range { height: 8px; border-radius: 5px; background-color: #e5e7eb; }
+        
+        /* Pewarnaan Khusus Tombol Geser Kontras */
+        .block-R .form-range::-webkit-slider-thumb { background: #dc3545; }
+        .block-I .form-range::-webkit-slider-thumb { background: #0d6efd; }
+        .block-A .form-range::-webkit-slider-thumb { background: #6f42c1; }
+        .block-S .form-range::-webkit-slider-thumb { background: #198754; }
+        .block-E .form-range::-webkit-slider-thumb { background: #fd7e14; }
+        .block-C .form-range::-webkit-slider-thumb { background: #495057; }
+
+        .scale-labels { font-size: 0.8rem; font-weight: 500; color: #6b7280; display: flex; justify-content: space-between; margin-top: 6px; }
+        .badge-skor { font-size: 0.9rem; padding: 6px 14px; font-weight: bold; border-radius: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+
+        /* Area Paste Excel */
+        #pasteExcel { font-family: monospace; white-space: pre; font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+
+    <!-- ========================================== -->
+    <!-- PANEL 1: GERBANG LOGIN                     -->
+    <!-- ========================================== -->
+    <div id="pageLogin" class="container">
+        <div class="card card-login p-4 bg-white">
+            <div class="text-center mb-4">
+                <div class="bg-success text-white d-inline-block p-3 rounded-circle mb-3 shadow-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-mortarboard-fill" viewBox="0 0 16 16">
+                        <path d="M8.211 2.047a.5.5 0 0 0-.422 0l-7.5 3.5a.5.5 0 0 0 .025.865A1.5 1.5 0 0 0 .5 7v3.883a1.5 1.5 0 0 0 .456 1.06l1.253 1.253a1.5 1.5 0 0 0 1.06.456H12.73a1.5 1.5 0 0 0 1.06-.456l1.253-1.253a1.5 1.5 0 0 0 .456-1.06V7a1.5 1.5 0 0 0-.792-1.318l-5.462-2.548z"/>
+                        <path d="M4.176 9.032a.5.5 0 0 0-.656.327l-.5 1.7a.5.5 0 0 0 .294.605l4.5 1.8a.5.5 0 0 0 .372 0l4.5-1.8a.5.5 0 0 0 .294-.605l-.5-1.7a.5.5 0 0 0-.656-.327L8 10.466z"/>
+                    </svg>
+                </div>
+                <h4 class="fw-bold text-dark mb-1">Sistem Pemilihan Mapel</h4>
+                <p class="text-muted small">SMA Negeri Bareng - Kurikulum 5 Paket</p>
+            </div>
+            <hr>
+            
+            <div class="mb-3">
+                <label class="form-label fw-bold">Masuk Sebagai</label>
+                <select id="loginRole" class="form-select form-select-lg" onchange="toggleLoginInput()">
+                    <option value="siswa">Siswa (Asesmen Peminatan)</option>
+                    <option value="admin">Admin Kurikulum</option>
+                </select>
+            </div>
+
+            <div class="mb-4" id="boxInputSiswa">
+                <label class="form-label fw-bold">Nomor Induk Siswa (NIS)</label>
+                <input type="number" id="inputNis" class="form-control form-control-lg" placeholder="Masukkan NIS Anda">
+                <div class="form-text text-muted">Pastikan data Anda telah dimasukkan oleh Kurikulum.</div>
+            </div>
+
+            <div class="mb-4 hidden-layout" id="boxInputAdmin">
+                <label class="form-label fw-bold">Kode Otorisasi Kurikulum</label>
+                <input type="password" id="inputToken" class="form-control form-control-lg" placeholder="Sandi Panel Admin">
+                <div class="form-text text-muted">Sandi default: <span class="badge bg-secondary">admin123</span></div>
+            </div>
+
+            <button type="button" class="btn btn-success btn-lg w-100" onclick="prosesAutentikasi()">Masuk ke Dashboard</button>
+        </div>
+    </div>
+
+
+    <!-- ========================================== -->
+    <!-- PANEL 2: DASHBOARD ADMIN KURIKULUM         -->
+    <!-- ========================================== -->
+    <div id="pageAdmin" class="container-fluid py-4 hidden-layout">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3 col-lg-2 mb-4">
+                <div class="card p-3 sidebar-menu bg-white shadow-sm h-100">
+                    <h6 class="text-uppercase text-muted small fw-bold px-2 mb-3">Panel Kurikulum</h6>
+                    <nav class="nav flex-column">
+                        <button class="nav-link active btn text-start" id="btnMenuInput" onclick="switchAdminTab('input')">1. Input Master Data</button>
+                        <button class="nav-link btn text-start" id="btnMenuHasil" onclick="switchAdminTab('hasil')">2. Rekap Penempatan</button>
+                    </nav>
+                    <hr class="mt-auto">
+                    <button class="btn btn-outline-danger w-100 btn-sm" onclick="logout()">Keluar Sistem</button>
+                </div>
+            </div>
+
+            <!-- Konten Admin -->
+            <div class="col-md-9 col-lg-10">
+                <!-- Sub 1: Input Data -->
+                <div id="subAdminInput" class="row">
+                    <div class="col-lg-4 mb-4">
+                        <div class="card card-dashboard p-0" style="border-left: 4px solid #0d6efd; overflow:hidden;">
+                            <div class="card-header bg-white pb-0 pt-3 border-bottom-0">
+                                <ul class="nav nav-tabs border-bottom-0" id="adminInputTab" role="tablist">
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link active fw-bold" id="manual-tab" data-bs-toggle="tab" data-bs-target="#manual-pane" type="button" role="tab">Input Manual</button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link fw-bold text-success" id="import-tab" data-bs-toggle="tab" data-bs-target="#import-pane" type="button" role="tab">Impor Excel</button>
+                                    </li>
+                                </ul>
+                            </div>
+                            
+                            <div class="card-body bg-white border-top">
+                                <div class="tab-content" id="adminInputTabContent">
+                                    <!-- TAB INPUT MANUAL -->
+                                    <div class="tab-pane fade show active" id="manual-pane" role="tabpanel" tabindex="0">
+                                        <div class="mb-2">
+                                            <label class="form-label small mb-1 fw-bold">NIS (Nomor Induk Siswa)</label>
+                                            <input type="number" id="addNis" class="form-control" placeholder="Contoh: 2404">
+                                        </div>
+                                        <div class="mb-2">
+                                            <label class="form-label small mb-1 fw-bold">Nama Siswa</label>
+                                            <input type="text" id="addNama" class="form-control" placeholder="Nama lengkap siswa">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label small mb-1 fw-bold">Kelas Asal</label>
+                                            <select id="addKelas" class="form-select">
+                                                <option value="X-1">X-1</option><option value="X-2">X-2</option>
+                                                <option value="X-3">X-3</option><option value="X-4">X-4</option>
+                                                <option value="X-5">X-5</option><option value="X-6">X-6</option>
+                                            </select>
+                                        </div>
+                                        <hr>
+                                        <div class="mb-2">
+                                            <label class="form-label small mb-1">Rerata Rapor Semua Mapel (60%)</label>
+                                            <input type="number" id="addAkademik" class="form-control" max="100" min="0" placeholder="Skala 0-100">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label small mb-1">Nilai Mapel Pendukung Utama (20%)</label>
+                                            <input type="number" id="addPendukung" class="form-control" max="100" min="0" placeholder="Skala 0-100">
+                                        </div>
+                                        <button type="button" class="btn btn-primary w-100" onclick="adminTambahSiswa()">Simpan ke Master Data</button>
+                                    </div>
+
+                                    <!-- TAB IMPOR MASSAL EXCEL -->
+                                    <div class="tab-pane fade" id="import-pane" role="tabpanel" tabindex="0">
+                                        <div class="alert alert-success border-success small mb-3">
+                                            <b>Cara Impor:</b><br>
+                                            1. Buka file Excel Rekap Data DAPODIK Anda.<br>
+                                            2. Pastikan berurutan 5 Kolom: <b>NIS | Nama | Kelas | Rapor | Pendukung</b>.<br>
+                                            3. Blok data (tanpa judul kolom), tekan <b>Copy</b> (Ctrl+C).<br>
+                                            4. <b>Paste</b> (Ctrl+V) ke dalam kotak di bawah ini.
+                                        </div>
+                                        <div class="mb-3">
+                                            <textarea id="pasteExcel" class="form-control bg-light" rows="8" placeholder="Paste data Excel Anda di sini..."></textarea>
+                                        </div>
+                                        <button type="button" class="btn btn-success w-100 fw-bold" onclick="adminImportExcel()">Proses Impor Data</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tabel Master Data -->
+                    <div class="col-lg-8 mb-4">
+                        <div class="card card-dashboard p-4">
+                            <h5 class="text-dark fw-bold mb-3">Database Master Nilai & Biodata</h5>
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>NIS</th>
+                                            <th>Nama Siswa</th>
+                                            <th>Kelas</th>
+                                            <th>Rata Rapor</th>
+                                            <th>Nilai Pendukung</th>
+                                            <th>Status Tes</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tabelMasterAdmin"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sub 2: Hasil & Perangkingan Berantai -->
+                <div id="subAdminHasil" class="row hidden-layout">
+                    <div class="col-md-4 mb-4">
+                        <div class="card card-dashboard p-4">
+                            <h5 class="text-dark fw-bold mb-3">Sisa Kursi / Kuota (5 Paket)</h5>
+                            <ul class="list-group" id="adminListKuota"></ul>
+                        </div>
+                    </div>
+                    <div class="col-md-8 mb-4">
+                        <div class="card card-dashboard p-4">
+                            <h5 class="text-dark fw-bold mb-3">Hasil Penempatan (Sistem Seleksi Berantai)</h5>
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-striped align-middle" style="font-size:0.9rem;">
+                                    <thead class="table-dark">
+                                        <tr>
+                                            <th>Rank</th>
+                                            <th>Nama Siswa (Kelas)</th>
+                                            <th>Pil 1</th>
+                                            <th>Pil 2</th>
+                                            <th>Pil 3</th>
+                                            <th>Skor SAK</th>
+                                            <th>Keputusan Final</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="adminTabelHasil"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ========================================== -->
+    <!-- PANEL 3: DASHBOARD PORTAL SISWA            -->
+    <!-- ========================================== -->
+    <div id="pageSiswa" class="container py-4 hidden-layout">
+        <!-- Header Info Siswa -->
+        <div class="card card-dashboard p-4 mb-4" style="border-left: 4px solid #198754;">
+            <div class="d-flex justify-content-between align-items-center flex-wrap">
+                <div>
+                    <span class="text-muted small">Peserta Seleksi Terverifikasi:</span>
+                    <h3 class="text-dark fw-bold mb-0" id="lblNamaSiswa">-</h3>
+                    <span class="badge bg-light text-success border border-success mt-1 me-2">
+                         Kelas: <b id="lblKelasSiswa">-</b>
+                    </span>
+                    <span class="badge bg-light text-success border border-success mt-1">
+                         Rata-rata Rapor: <b id="lblRaporSiswa">0</b>
+                    </span>
+                </div>
+                <button class="btn btn-sm btn-outline-danger mt-2 mt-md-0" onclick="logout()">Keluar Akun</button>
+            </div>
+        </div>
+
+        <!-- Indikator Tahapan -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="d-flex justify-content-center bg-white p-2 rounded shadow-sm">
+                    <button class="btn btn-success me-2 fw-bold" id="indicatorTahap1" disabled>Bagian 1: Level Soal (Tes RIASEC)</button>
+                    <button class="btn btn-outline-secondary fw-bold" id="indicatorTahap2" disabled>Bagian 2: Urutan Prioritas Paket</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAHAP 1: KUESIONER RIASEC (30 SOAL LIKERT) -->
+        <div id="siswaTahap1">
+            <div class="card card-dashboard p-4 mb-4">
+                <div class="alert alert-warning mb-4">
+                    <b>Petunjuk Pengisian Level Soal:</b> Geser bar penilaian di bawah ini ke arah kanan dari rentang <b>1 s.d 5</b> sesuai dengan tingkat kecenderungan minat Anda (Angka awal berada pada tingkat 1: Sangat Tidak Suka).
+                </div>
+                <hr>
+                <form id="formRiasec30Soal">
+                    
+                    <!-- REALISTIC -->
+                    <div class="riasec-block block-R">
+                        <h4 class="text-danger fw-bold mb-4">🛠 Kelompok Praktikal & Fisik (Realistic)</h4>
+                        <div class="question-item">
+                            <label class="form-label fw-bold">1. Saya suka merakit komponen atau memperbaiki perangkat elektronik yang rusak di rumah.</label>
+                            <div class="slider-wrapper">
+                                <input type="range" class="form-range" min="1" max="5" step="1" value="1" id="r_q1" oninput="updateRangeLabel('r_q1_lbl', this.value, 'bg-danger')">
+                                <div class="scale-labels"><span>1 (Sangat Tidak Suka)</span><span class="badge bg-danger badge-skor" id="r_q1_lbl">Skor: 1</span><span>5 (Sangat Suka)</span></div>
+                            </div>
+                        </div>
+                        <div class="question-item">
+                            <label class="form-label fw-bold">2. Saya senang melakukan kegiatan luar ruangan yang mengandalkan ketahanan fisik.</label>
+                            <div class="slider-wrapper">
+                                <input type="range" class="form-range" min="1" max="5" step="1" value="1" id="r_q2" oninput="updateRangeLabel('r_q2_lbl', this.value, 'bg-danger')">
+                                <div class="scale-labels"><span>1 (Sangat Tidak Suka)</span><span class="badge bg-danger badge-skor" id="r_q2_lbl">Skor: 1</span><span>5 (Sangat Suka)</span></div>
+                            </div>
+                        </div>
+                        <div class="question-item">
+                            <label class="form-label fw-bold">3. Saya tertarik mempelajari cara kerja mesin, motor, atau perkakas teknis.</label>
+                            <div class="slider-wrapper">
+                                <input type="range" class="form-range" min="1" max="5" step="1" value="1" id="r_q3" oninput="updateRangeLabel('r_q3_lbl', this.value, 'bg-danger')">
+                                <div class="scale-labels"><span>1 (Sangat Tidak Suka)</span><span class="badge bg-danger badge-skor" id="r_q3_lbl">Skor: 1</span><span>5 (Sangat Suka)</span></div>
+                            </div>
+                        </div>
+                        <div class="question-item">
+                            <label class="form-label fw-bold">4. Saya lebih suka membuat produk kerajinan tangan nyata daripada teori abstrak di kelas.</label>
+                            <div class="slider-wrapper">
+                                <input type="range" class="form-range" min="1" max="5" step="1" value="1" id="r_q4" oninput="updateRangeLabel('r_q4_lbl', this.value, 'bg-danger')">
+                                <div class="scale-labels"><span>1 (Sangat Tidak Suka)</span><span class="badge bg-danger badge-skor" id="r_q4_lbl">Skor: 1</span><span>5 (Sangat Suka)</span></div>
+                            </div>
+                        </div>
+                        <div class="question-item">
+                            <label class="form-label fw-bold">5. Saya merasa nyaman bekerja dengan alat ukur presisi tinggi, cetakan, atau cetak biru teknis.</label>
+                            <div class="slider-wrapper">
+                                <input type="range" class="form-range" min="1" max="5" step="1" value="1" id="r_q5" oninput="updateRangeLabel('r_q5_lbl', this.value, 'bg-danger')">
+                                <div class="scale-labels"><span>1 (Sangat Tidak Suka)</span><span class="badge bg-danger badge-skor" id="r_q5_lbl">Skor: 1</span><span>5 (Sangat Suka)</span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- INVESTIGATIVE -->
+                    <div class="riasec-block block-I">
+                        <h4 class="text-primary fw-bold mb-4">🔬 Kelompok Eksperimen & Analisis Logis (Investigative)</h4>
+                        <div class="question-item">
+                            <label class="form-label fw-bold">1. Saya senang memecahkan soal matematika atau teka-teki logika yang rumit.</label>
+                            <div class="slider-wrapper">
+                                <input type="range" class="form-range" min="1" max="5" step="1" value="1" id="i_q1" oninput="updateRangeLabel('i_q1_lbl', this.value, 'bg-primary')">
+                                <div class="scale-labels"><span>1 (Sangat Tidak Suka)</span><span class="badge bg-primary badge-skor" id="i_q1_lbl">Skor: 1</span><span>5 (Sangat Suka)</span></div>
+                            </div>
+                        </div>
+                        <div class="question-item">
+                            <label class="form-label fw-bold">2. Saya tertarik melakukan eksperimen sains di laboratorium (Biologi/Kimia/Fisika).</label>
+                            <div class="slider-wrapper">
+                                <input type="range" class="form-range" min="1" max="5" step="1" value="1" id="i_q2" oninput="updateRangeLabel('i_q2_lbl', this.value, 'bg-primary')">
+                                <div class="scale-labels"><span>1 (Sangat Tidak Suka)</span><span class="badge bg-primary badge-skor" id="i_q2_lbl">Skor: 1</span><span>5 (Sangat Suka)</span></div>
+                            </div>
+                        </div>
+                        <div class="question-item">
+                            <label class="form-label fw-bold">3. Saya suka mencari tahu alasan ilmiah di balik terjadinya suatu fenomena alam.</label>
+                            <div class="slider-wrapper">
+                                <input type="range" class="form-range" min="1" max="5" step="1" value="1" id="i_q3" oninput="updateRangeLabel('i_q3_lbl', this.value, 'bg-primary')">
+                                <div class="scale-labels"><span>1 (Sangat Tidak Suka)</span><span class="badge bg-primary badge-skor" id="i_q3_lbl">Skor: 1</span><span>5 (Sangat Suka)</span></div>
+                            </div>
+                        </div>
+                        <div class="question-item">
+                            <label class="form-label fw-bold">4. Saya senang membaca artikel penelitian, jurnal ilmiah, atau berita perkembangan teknologi mutakhir.</label>
+                            <div class="slider-wrapper">
+                                <input type="range" class="form-range" min="1" max="5" step="1" value="1" id="i_q4" oninput="updateRangeLabel('i_q4_lbl', this.value, 'bg-primary')">
+                                <div class="scale-labels"><span>1 (Sangat Tidak Suka)</span><span class="badge bg-primary badge-skor" id="i_q4_lbl">Skor: 1</span><span>5 (Sangat Suka)</span></div>
+                            </div>
+                        </div>
+                        <div class="question-item">
+                            <label class="form-label fw-bold">5. Saya suka menganalisis grafik data untuk menarik kesimpulan yang objektif.</label>
+                            <div class="slider-wrapper">
+                                <input type="range" class="form-range" min="1" max="5" step="1" value="1" id="i_q5" oninput="updateRangeLabel('i_q5_lbl', this.value, 'bg-primary')">
+                                <div class="scale-labels"><span>1 (Sangat Tidak Suka)</span><span class="badge bg-primary badge-skor" id="i_q5_lbl">Skor: 1</span><span>5 (Sangat Suka)</span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ARTISTIC -->
+                    <div class="riasec-block block-A">
+                        <h4 class="fw-bold mb-4" style="color: #6f42c1;">🎨 Kelompok Kreativitas & Ekspresi Seni (Artistic)</h4>
+                        <div class="question-item">
+                            <label class="form-label fw-bold">1. Saya suka merancang konsep visual, sketsa gambar, atau desain grafis digital.</label>
+                            <div class="slider-wrapper">
+                                <input type="range" class="form-range" min="1" max="5" step="1" value="1" id="a_q1" oninput="updateRangeLabel('a_q1_lbl', this.value, 'bg-purple')">
+                                <div class="scale-labels"><span>1 (Sangat Tidak Suka)</span><span class="badge badge-skor text-white" style="background-color: #6f42c1;" id="a_q1_lbl">Skor: 1</span><span>5 (Sangat Suka)</span></div>
+                            </div>
+                        </div>
+                        <div class="question-item">
+                            <label class="form-label fw-bold">2. Saya mengekspresikan diri melalui musik, drama, tarian, atau karya sastra/puisi.</label>
+                            <div class="slider-wrapper">
+                                <input type="range" class="form-range" min="1" max="5" step="1" value="1" id="a_q2" oninput="updateRangeLabel('a_q2_lbl', this.value, 'bg-purple')">
+                                <div class="scale-labels"><span>1 (Sangat Tidak Suka)</span><span class="badge badge-skor text-white" style="background-color: #6f42c1;" id="a_q2_lbl">Skor: 1</span><span>5 (Sangat Suka)</span></div>
+                            </div>
+                        </div>
+                        <div class="question-item">
+                            <label class="form-label fw-bold">3. Saya tidak menyukai pekerjaan yang terlalu kaku dan terikat banyak aturan konvensional.</label>
+                            <div class="slider-wrapper">
+                                <input type="range" class="form-range" min="1" max="5" step="1" value="1" id="a_q3" oninput="updateRangeLabel('a_q3_lbl', this.value, 'bg-purple')">
+                                <div class="scale-labels"><span>1 (Sangat Tidak Suka)</span><span class="badge badge-skor text-white" style="background-color: #6f42c1;" id="a_q3_lbl">Skor: 1</span><span>5 (Sangat Suka)</span></div>
+                            </div>
+                        </div>
+                        <div class="question-item">
+                            <label class="form-label fw-bold">4. Saya senang memikirkan ide-ide baru yang orisinal dan tidak terpikirkan oleh orang lain.</label>
+                            <div class="slider-wrapper">
+                                <input type="range" class="form-range" min="1" max="5" step="1" value="1" id="a_q4" oninput="updateRangeLabel('a_q4_lbl', this.value, 'bg-purple')">
+                                <div class="scale-labels"><span>1 (Sangat Tidak Suka)</span><span class="badge badge-skor text-white" style="background-color: #6f42c1;" id="a_q4_lbl">Skor: 1</span><span>5 (Sangat Suka)</span></div>
+                            </div>
+                        </div>
+                        <div class="question-item">
+                            <label class="form-label fw-bold">5. Saya menikmati kebebasan berkreasi dalam mengerjakan penugasan sekolah.</label>
+                            <div class="slider-wrapper">
+                                <input type="range" class="form-range" min="1" max="5" step="1" value="1" id="a_q5" oninput="updateRangeLabel('a_q5_lbl', this.value, 'bg-purple')">
+                                <div class="scale-labels"><span>1 (Sangat Tidak Suka)</span><span class="badge badge-skor text-white" style="background-color: #6f42c1;" id="a_q5_lbl">Skor: 1</span><span>5 (Sangat Suka)</span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SOCIAL -->
+                    <div class="riasec-block block-S">
+                        <h4 class="text-success fw-bold mb-4">🤝 Kelompok Pelayanan & Interaksi Sosial (Social)</h4>
+                        <div class="question-item">
+                            <label class="form-label fw-bold">1. Saya merasa senang jika bisa mengajari atau menjelaskan materi pelajaran kepada teman.</label>
+                            <div class="slider-wrapper">
+                                <input type="range" class="form-range" min="1" max="5" step="1" value="1" id="s_q1" oninput="updateRangeLabel('s_q1_lbl', this.value, 'bg-success')">
+                                <div class="scale-labels"><span>1 (Sangat Tidak Suka)</span><span class="badge bg-success badge-skor" id="s_q1_lbl">Skor: 1</span><span>5 (Sangat Suka)</span></div>
+                            </div>
+                        </div>
+                        <div class="question-item">
+                            <label class="form-label fw-bold">2. Saya tertarik pada topik diskusi kesehatan mental, psikologi, dan sosiologi kemanusiaan.</label>
+                            <div class="slider-wrapper">
+                                <input type="range" class="form-range" min="1" max="5" step="1" value="1" id="s_q2" oninput="updateRangeLabel('s_q2_lbl', this.value, 'bg-success')">
+                                <div class="scale-labels"><span>1 (Sangat Tidak Suka)</span><span class="badge bg-success badge-skor" id="s_q2_lbl">Skor: 1</span><span>5 (Sangat Suka)</span></div>
+                            </div>
+                        </div>
+                        <div class="question-item">
+                            <label class="form-label fw-bold">3. Saya aktif bergabung dalam kegiatan kepanitiaan bakti sosial atau palang merah remaja.</label>
+                            <div class="slider-wrapper">
+                                <input type="range" class="form-range" min="1" max="5" step="1" value="1" id="s_q3" oninput="updateRangeLabel('s_q3_lbl', this.value, 'bg-success')">
+                                <div class="scale-labels"><span>1 (Sangat Tidak Suka)</span><span class="badge bg-success badge-skor" id="s_q3_lbl">Skor: 1</span><span>5 (Sangat Suka)</span></div>
+                            </div>
+                        </div>
+                        <div class="question-item">
+                            <label class="form-label fw-bold">4. Saya suka menjadi tempat curhat dan membantu mencarikan solusi atas masalah teman.</label>
+                            <div class="slider-wrapper">
+                                <input type="range" class="form-range" min="1" max="5" step="1" value="1" id="s_q4" oninput="updateRangeLabel('s_q4_lbl', this.value, 'bg-success')">
+                                <div class="scale-labels"><span>1 (Sangat Tidak Suka)</span><span class="badge bg-success badge-skor" id="s_q4_lbl">Skor: 1</span><span>5 (Sangat Suka)</span></div>
+                            </div>
+                        </div>
+                        <div class="question-item">
+                            <label class="form-label fw-bold">5. Bagi saya, kerja kelompok kolaboratif jauh lebih menyenangkan dibanding tugas mandiri individu.</label>
+                            <div class="slider-wrapper">
+                                <input type="range" class="form-range" min="1" max="5" step="1" value="1" id="s_q5" oninput="updateRangeLabel('s_q5_lbl', this.value, 'bg-success')">
+                                <div class="scale-labels"><span>1 (Sangat Tidak Suka)</span><span class="badge bg-success badge-skor" id="s_q5_lbl">Skor: 1</span><span>5 (Sangat Suka)</span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ENTERPRISING -->
+                    <div class="riasec-block block-E">
+                        <h4 class="text-warning fw-bold mb-4">📣 Kelompok Kepemimpinan & Pengaruh Bisnis (Enterprising)</h4>
+                        <div class="question-item">
+                            <label class="form-label fw-bold">1. Saya suka berinisiatif menjadi ketua kelompok dalam kepemimpinan proyek kelas.</label>
+                            <div class="slider-wrapper">
+                                <input type="range" class="form-range" min="1" max="5" step="1" value="1" id="e_q1" oninput="updateRangeLabel('e_q1_lbl', this.value, 'bg-warning text-dark')">
+                                <div class="scale-labels"><span>1 (Sangat Tidak Suka)</span><span class="badge bg-warning text-dark badge-skor" id="e_q1_lbl">Skor: 1</span><span>5 (Sangat Suka)</span></div>
+                            </div>
+                        </div>
+                        <div class="question-item">
+                            <label class="form-label fw-bold">2. Saya memiliki bakat atau ketertarikan untuk berjualan, berbisnis, dan berwirausaha mandiri.</label>
+                            <div class="slider-wrapper">
+                                <input type="range" class="form-range" min="1" max="5" step="1" value="1" id="e_q2" oninput="updateRangeLabel('e_q2_lbl', this.value, 'bg-warning text-dark')">
+                                <div class="scale-labels"><span>1 (Sangat Tidak Suka)</span><span class="badge bg-warning text-dark badge-skor" id="e_q2_lbl">Skor: 1</span><span>5 (Sangat Suka)</span></div>
+                            </div>
+                        </div>
+                        <div class="question-item">
+                            <label class="form-label fw-bold">3. Saya merasa tertantang untuk meyakinkan orang lain agar menyetujui pendapat saya saat debat.</label>
+                            <div class="slider-wrapper">
+                                <input type="range" class="form-range" min="1" max="5" step="1" value="1" id="e_q3" oninput="updateRangeLabel('e_q3_lbl', this.value, 'bg-warning text-dark')">
+                                <div class="scale-labels"><span>1 (Sangat Tidak Suka)</span><span class="badge bg-warning text-dark badge-skor" id="e_q3_lbl">Skor: 1</span><span>5 (Sangat Suka)</span></div>
+                            </div>
+                        </div>
+                        <div class="question-item">
+                            <label class="form-label fw-bold">4. Saya senang merencanakan strategi besar untuk memenangkan suatu kompetisi kelompok.</label>
+                            <div class="slider-wrapper">
+                                <input type="range" class="form-range" min="1" max="5" step="1" value="1" id="e_q4" oninput="updateRangeLabel('e_q4_lbl', this.value, 'bg-warning text-dark')">
+                                <div class="scale-labels"><span>1 (Sangat Tidak Suka)</span><span class="badge bg-warning text-dark badge-skor" id="e_q4_lbl">Skor: 1</span><span>5 (Sangat Suka)</span></div>
+                            </div>
+                        </div>
+                        <div class="question-item">
+                            <label class="form-label fw-bold">5. Saya berani mengambil keputusan penting dan menanggung risiko dari keputusan tersebut.</label>
+                            <div class="slider-wrapper">
+                                <input type="range" class="form-range" min="1" max="5" step="1" value="1" id="e_q5" oninput="updateRangeLabel('e_q5_lbl', this.value, 'bg-warning text-dark')">
+                                <div class="scale-labels"><span>1 (Sangat Tidak Suka)</span><span class="badge bg-warning text-dark badge-skor" id="e_q5_lbl">Skor: 1</span><span>5 (Sangat Suka)</span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CONVENTIONAL -->
+                    <div class="riasec-block block-C">
+                        <h4 class="text-secondary fw-bold mb-4">🗂 Kelompok Kerapian Data & Administrasi (Conventional)</h4>
+                        <div class="question-item">
+                            <label class="form-label fw-bold">1. Saya senang menyusun jadwal harian, membuat daftar checklist tugas secara rapi.</label>
+                            <div class="slider-wrapper">
+                                <input type="range" class="form-range" min="1" max="5" step="1" value="1" id="c_q1" oninput="updateRangeLabel('c_q1_lbl', this.value, 'bg-secondary')">
+                                <div class="scale-labels"><span>1 (Sangat Tidak Suka)</span><span class="badge bg-secondary badge-skor" id="c_q1_lbl">Skor: 1</span><span>5 (Sangat Suka)</span></div>
+                            </div>
+                        </div>
+                        <div class="question-item">
+                            <label class="form-label fw-bold">2. Saya suka mengolah tabel angka, mencatat laporan keuangan kas, atau pembukuan.</label>
+                            <div class="slider-wrapper">
+                                <input type="range" class="form-range" min="1" max="5" step="1" value="1" id="c_q2" oninput="updateRangeLabel('c_q2_lbl', this.value, 'bg-secondary')">
+                                <div class="scale-labels"><span>1 (Sangat Tidak Suka)</span><span class="badge bg-secondary badge-skor" id="c_q2_lbl">Skor: 1</span><span>5 (Sangat Suka)</span></div>
+                            </div>
+                        </div>
+                        <div class="question-item">
+                            <label class="form-label fw-bold">3. Saya merasa nyaman jika bekerja mengikuti instruksi/SOP tertulis yang jelas dan pasti.</label>
+                            <div class="slider-wrapper">
+                                <input type="range" class="form-range" min="1" max="5" step="1" value="1" id="c_q3" oninput="updateRangeLabel('c_q3_lbl', this.value, 'bg-secondary')">
+                                <div class="scale-labels"><span>1 (Sangat Tidak Suka)</span><span class="badge bg-secondary badge-skor" id="c_q3_lbl">Skor: 1</span><span>5 (Sangat Suka)</span></div>
+                            </div>
+                        </div>
+                        <div class="question-item">
+                            <label class="form-label fw-bold">4. Saya sangat teliti dalam memeriksa detail agar terhindar dari kesalahan penulisan berkas.</label>
+                            <div class="slider-wrapper">
+                                <input type="range" class="form-range" min="1" max="5" step="1" value="1" id="c_q4" oninput="updateRangeLabel('c_q4_lbl', this.value, 'bg-secondary')">
+                                <div class="scale-labels"><span>1 (Sangat Tidak Suka)</span><span class="badge bg-secondary badge-skor" id="c_q4_lbl">Skor: 1</span><span>5 (Sangat Suka)</span></div>
+                            </div>
+                        </div>
+                        <div class="question-item">
+                            <label class="form-label fw-bold">5. Saya lebih memilih menata arsip data dokumen digital secara terstruktur dibanding membuat konsep baru.</label>
+                            <div class="slider-wrapper">
+                                <input type="range" class="form-range" min="1" max="5" step="1" value="1" id="c_q5" oninput="updateRangeLabel('c_q5_lbl', this.value, 'bg-secondary')">
+                                <div class="scale-labels"><span>1 (Sangat Tidak Suka)</span><span class="badge bg-secondary badge-skor" id="c_q5_lbl">Skor: 1</span><span>5 (Sangat Suka)</span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                </form>
+                <button type="button" class="btn btn-primary btn-lg w-100" onclick="prosesAnalisisGabungan()">Analisis Variabel & Lanjut ke Bagian 2</button>
+            </div>
+        </div>
+
+        <!-- TAHAP 2: 3 TINGKAT PRIORITAS PILIHAN (5 PAKET BARU) -->
+        <div id="siswaTahap2" class="row hidden-layout">
+            <div class="col-md-8 mb-4">
+                <div class="card card-dashboard p-4">
+                    <h5 class="text-success fw-bold mb-2">Penentuan Urutan Prioritas Paket Mata Pelajaran</h5>
+                    <p class="text-muted small">Tentukan 3 paket berbeda sesuai urutan prioritas Anda. Sistem menyertakan rekomendasi pintar terintegrasi.</p>
+                    <hr>
+                    
+                    <!-- Alert Rekomendasi Cerdas -->
+                    <div class="alert alert-info border-primary d-flex align-items-center shadow-sm" role="alert">
+                        <div>
+                            ✨ <b>Rekomendasi Cerdas Terintegrasi:</b> Berdasarkan analisis, tipe dominan Anda adalah <span id="txtDominanSiswa" class="fw-bold text-primary">-</span>. Mengingat rekam nilai akademik (Rapor) Anda sebesar <span id="txtRaporSiswaForm" class="fw-bold text-primary">0</span>, maka paket prioritas utama yang disarankan adalah: 
+                            <div class="mt-2"><span id="txtSaranPaket" class="badge bg-primary fs-6 p-2">-</span></div>
+                        </div>
+                    </div>
+
+                    <!-- Dropdown Prioritas 1-3 -->
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-danger">Pilihan 1 (Prioritas Utama):</label>
+                        <select id="siswaPilihan1" class="form-select form-select-lg border-danger">
+                            <option value="Paket 1">Paket 1 - Biologi, Fisika, Kimia, MTK Lanjut, PKWU</option>
+                            <option value="Paket 2">Paket 2 - Fisika, Kimia, Informatika, MTK Lanjut, PKWU</option>
+                            <option value="Paket 3">Paket 3 - Sosiologi, Ekonomi, Geografi, Sejarah Lanjut, PKWU</option>
+                            <option value="Paket 4">Paket 4 - Sosiologi, Ekonomi, Geografi, B. Jepang, PKWU</option>
+                            <option value="Paket 5">Paket 5 - MTK Lanjut, Fisika, Ekonomi, Informatika, PKWU</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-dark">Pilihan 2 (Alternatif Kedua):</label>
+                        <select id="siswaPilihan2" class="form-select border-dark">
+                            <option value="" disabled selected>-- Pilih Alternatif 2 --</option>
+                            <option value="Paket 1">Paket 1 - Biologi, Fisika, Kimia, MTK Lanjut, PKWU</option>
+                            <option value="Paket 2">Paket 2 - Fisika, Kimia, Informatika, MTK Lanjut, PKWU</option>
+                            <option value="Paket 3">Paket 3 - Sosiologi, Ekonomi, Geografi, Sejarah Lanjut, PKWU</option>
+                            <option value="Paket 4">Paket 4 - Sosiologi, Ekonomi, Geografi, B. Jepang, PKWU</option>
+                            <option value="Paket 5">Paket 5 - MTK Lanjut, Fisika, Ekonomi, Informatika, PKWU</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-bold text-muted">Pilihan 3 (Alternatif Ketiga):</label>
+                        <select id="siswaPilihan3" class="form-select border-secondary">
+                            <option value="" disabled selected>-- Pilih Alternatif 3 --</option>
+                            <option value="Paket 1">Paket 1 - Biologi, Fisika, Kimia, MTK Lanjut, PKWU</option>
+                            <option value="Paket 2">Paket 2 - Fisika, Kimia, Informatika, MTK Lanjut, PKWU</option>
+                            <option value="Paket 3">Paket 3 - Sosiologi, Ekonomi, Geografi, Sejarah Lanjut, PKWU</option>
+                            <option value="Paket 4">Paket 4 - Sosiologi, Ekonomi, Geografi, B. Jepang, PKWU</option>
+                            <option value="Paket 5">Paket 5 - MTK Lanjut, Fisika, Ekonomi, Informatika, PKWU</option>
+                        </select>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <button type="button" class="btn btn-outline-secondary" onclick="kembaliKeTahap1()">Kembali Perbaiki Jawaban</button>
+                        <button type="button" class="btn btn-success btn-lg px-4" onclick="siswaKirimPilihanFinal()">Kunci & Kirim Data</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Kuota Info Siswa -->
+            <div class="col-md-4 mb-4">
+                <div class="card card-dashboard p-4">
+                    <h5 class="text-dark fw-bold mb-3">Kapasitas Kelas</h5>
+                    <ul class="list-group" id="siswaListKuota"></ul>
+                    <div class="alert alert-light border mt-3 small text-muted">
+                        Jika Anda tergeser dari kuota Pilihan 1, Anda akan langsung diadu dengan pendaftar di Pilihan 2, dan seterusnya.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script Bootstrap -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Script Logika Inti -->
+    <script>
+        // Database Simulasi Awal (NIS)
+        let masterDatabaseNilai = [
+            { nis: "2401", nama: "Budi Setiawan", kelas: "X-1", akademik: 88, pendukung: 90, sudahPilih: false, pilihan1: "", pilihan2: "", pilihan3: "", penempatan: "", minatSkor: 0, dominanRiasec: "-", timestamp: 0 },
+            { nis: "2402", nama: "Andi Wijaya", kelas: "X-2", akademik: 82, pendukung: 85, sudahPilih: false, pilihan1: "", pilihan2: "", pilihan3: "", penempatan: "", minatSkor: 0, dominanRiasec: "-", timestamp: 0 },
+            { nis: "2403", nama: "Citra Lestari", kelas: "X-3", akademik: 92, pendukung: 95, sudahPilih: false, pilihan1: "", pilihan2: "", pilihan3: "", penempatan: "", minatSkor: 0, dominanRiasec: "-", timestamp: 0 }
+        ];
+
+        // Kuota terbaru yang diminta
+        let kuotaPaket = {
+            "Paket 1": 70,
+            "Paket 2": 35,
+            "Paket 3": 35,
+            "Paket 4": 70,
+            "Paket 5": 35
+        };
+
+        let userLogined = null;
+        let riasecTemporaryResult = { R:0, I:0, A:0, S:0, E:0, C:0, dominanLabel: "", saranPaket: "" };
+
+        function updateRangeLabel(id, val, bgClass) {
+            const el = document.getElementById(id);
+            el.innerText = "Skor: " + val;
+            el.className = `badge badge-skor ${bgClass}`;
+        }
+
+        function toggleLoginInput() {
+            const role = document.getElementById('loginRole').value;
+            if(role === 'siswa') {
+                document.getElementById('boxInputSiswa').classList.remove('hidden-layout');
+                document.getElementById('boxInputAdmin').classList.add('hidden-layout');
+            } else {
+                document.getElementById('boxInputSiswa').classList.add('hidden-layout');
+                document.getElementById('boxInputAdmin').classList.remove('hidden-layout');
+            }
+        }
+
+        function prosesAutentikasi() {
+            const role = document.getElementById('loginRole').value;
+
+            if(role === 'admin') {
+                const token = document.getElementById('inputToken').value;
+                if(token === 'admin123') {
+                    document.getElementById('pageLogin').classList.add('hidden-layout');
+                    document.getElementById('pageAdmin').classList.remove('hidden-layout');
+                    renderAdminInputTable();
+                } else {
+                    alert("Kode Otorisasi Kurikulum Salah!");
+                }
+            } else {
+                const nis = document.getElementById('inputNis').value;
+                const siswa = masterDatabaseNilai.find(s => s.nis === nis);
+
+                if(siswa) {
+                    if(siswa.sudahPilih) {
+                        alert("Siswa dengan NIS ini sudah mengisi form prioritas paket!");
+                        return;
+                    }
+                    userLogined = siswa;
+                    document.getElementById('lblNamaSiswa').innerText = siswa.nama;
+                    document.getElementById('lblKelasSiswa').innerText = siswa.kelas;
+                    document.getElementById('lblRaporSiswa').innerText = siswa.akademik;
+                    document.getElementById('txtRaporSiswaForm').innerText = siswa.akademik;
+                    document.getElementById('pageLogin').classList.add('hidden-layout');
+                    document.getElementById('pageSiswa').classList.remove('hidden-layout');
+                    
+                    kembaliKeTahap1();
+                } else {
+                    alert("NIS tidak ditemukan di Database Sekolah!");
+                }
+            }
+        }
+
+        // =====================================
+        // MESIN REKOMENDASI 5 PAKET
+        // =====================================
+        function prosesAnalisisGabungan() {
+            let R = 0, I = 0, A = 0, S = 0, E = 0, C = 0;
+
+            for(let i=1; i<=5; i++) {
+                R += parseInt(document.getElementById(`r_q${i}`).value);
+                I += parseInt(document.getElementById(`i_q${i}`).value);
+                A += parseInt(document.getElementById(`a_q${i}`).value);
+                S += parseInt(document.getElementById(`s_q${i}`).value);
+                E += parseInt(document.getElementById(`e_q${i}`).value);
+                C += parseInt(document.getElementById(`c_q${i}`).value);
+            }
+
+            let avgR = R / 5; let avgI = I / 5; let avgA = A / 5;
+            let avgS = S / 5; let avgE = E / 5; let avgC = C / 5;
+
+            const dataMinat = [
+                { id: "R", name: "Realistic (R)", avg: avgR },
+                { id: "I", name: "Investigative (I)", avg: avgI },
+                { id: "A", name: "Artistic (A)", avg: avgA },
+                { id: "S", name: "Social (S)", avg: avgS },
+                { id: "E", name: "Enterprising (E)", avg: avgE },
+                { id: "C", name: "Conventional (C)", avg: avgC }
+            ];
+            dataMinat.sort((a,b) => b.avg - a.avg);
+            
+            let tipeDominanId = dataMinat[0].id;
+            let tipeDominanNama = dataMinat[0].name;
+            let rekomendasiPaketFinal = "";
+            let nilaiRaporSiswa = userLogined.akademik;
+
+            // Logika Pemetaan ke 5 Paket Baru (Pembaruan aturan Investigative & Realistic)
+            if (tipeDominanId === "I") {
+                // Investigatif dengan Rapor >= 85 diarahkan ke Paket 2 (Teknik/IT). Jika < 85 ke Paket 1 (Bio).
+                rekomendasiPaketFinal = (nilaiRaporSiswa >= 85) ? "Paket 2" : "Paket 1";
+            } else if (tipeDominanId === "R") {
+                // Realistic diarahkan ke Paket 2 (Teknik/IT)
+                rekomendasiPaketFinal = "Paket 2";
+            } else if (tipeDominanId === "S") {
+                rekomendasiPaketFinal = "Paket 3";
+            } else if (tipeDominanId === "A") {
+                rekomendasiPaketFinal = "Paket 4";
+            } else if (tipeDominanId === "C" || tipeDominanId === "E") {
+                rekomendasiPaketFinal = "Paket 5";
+            }
+
+            riasecTemporaryResult.dominanLabel = tipeDominanNama;
+            riasecTemporaryResult.saranPaket = rekomendasiPaketFinal;
+
+            document.getElementById('txtDominanSiswa').innerText = `${tipeDominanNama} (Skor Rata-rata: ${dataMinat[0].avg.toFixed(1)}/5)`;
+            document.getElementById('txtSaranPaket').innerText = rekomendasiPaketFinal;
+            
+            // Set otomatis Pilihan 1
+            document.getElementById('siswaPilihan1').value = rekomendasiPaketFinal;
+
+            document.getElementById('siswaTahap1').classList.add('hidden-layout');
+            document.getElementById('siswaTahap2').classList.remove('hidden-layout');
+            document.getElementById('indicatorTahap1').className = "btn btn-outline-secondary me-2 fw-bold";
+            document.getElementById('indicatorTahap2').className = "btn btn-success fw-bold";
+            
+            renderSiswaKuota();
+        }
+
+        function kembaliKeTahap1() {
+            document.getElementById('siswaTahap1').classList.remove('hidden-layout');
+            document.getElementById('siswaTahap2').classList.add('hidden-layout');
+            document.getElementById('indicatorTahap1').className = "btn btn-success me-2 fw-bold";
+            document.getElementById('indicatorTahap2').className = "btn btn-outline-secondary fw-bold";
+        }
+
+        function siswaKirimPilihanFinal() {
+            if(!userLogined) return;
+
+            const p1 = document.getElementById('siswaPilihan1').value;
+            const p2 = document.getElementById('siswaPilihan2').value;
+            const p3 = document.getElementById('siswaPilihan3').value;
+
+            if (!p2 || !p3) {
+                alert("Mohon lengkapi Pilihan 2 dan Pilihan 3 Anda!");
+                return;
+            }
+
+            if(p1 === p2 || p1 === p3 || p2 === p3) {
+                alert("Peringatan! Ketiga prioritas pilihan harus berisi paket yang berbeda.");
+                return;
+            }
+
+            // Poin keselarasan
+            let minatSkor = 50; 
+            if (p1 === riasecTemporaryResult.saranPaket) { minatSkor = 100; }
+
+            userLogined.sudahPilih = true;
+            userLogined.pilihan1 = p1;
+            userLogined.pilihan2 = p2;
+            userLogined.pilihan3 = p3;
+            userLogined.minatSkor = minatSkor;
+            userLogined.dominanRiasec = riasecTemporaryResult.dominanLabel;
+            userLogined.timestamp = Date.now();
+
+            alert(`Sukses mengunci urutan prioritas! Data peminatan berhasil diintegrasikan.`);
+            logout();
+        }
+
+        // =====================================
+        // FUNGSI ADMIN
+        // =====================================
+        function adminTambahSiswa() {
+            const nis = document.getElementById('addNis').value;
+            const nama = document.getElementById('addNama').value;
+            const kelas = document.getElementById('addKelas').value;
+            const akademik = parseFloat(document.getElementById('addAkademik').value) || 0;
+            const pendukung = parseFloat(document.getElementById('addPendukung').value) || 0;
+
+            if(!nis || !nama) { alert("Mohon lengkapi NIS dan Nama siswa!"); return; }
+            if(masterDatabaseNilai.some(s => s.nis === nis)) { alert("NIS ini sudah terdaftar!"); return; }
+
+            masterDatabaseNilai.push({
+                nis: nis, nama: nama, kelas: kelas, akademik: akademik, pendukung: pendukung,
+                sudahPilih: false, pilihan1: "", pilihan2: "", pilihan3: "", penempatan: "",
+                minatSkor: 0, dominanRiasec: "-", timestamp: 0
+            });
+
+            alert(`Berhasil menambahkan record siswa manual: ${nama}`);
+            renderAdminInputTable();
+            
+            document.getElementById('addNis').value = '';
+            document.getElementById('addNama').value = '';
+            document.getElementById('addAkademik').value = '';
+            document.getElementById('addPendukung').value = '';
+        }
+
+        function adminImportExcel() {
+            const textLengkap = document.getElementById('pasteExcel').value.trim();
+            if(!textLengkap) { alert("Teks kosong! Silakan paste data Excel."); return; }
+
+            const barisData = textLengkap.split('\n');
+            let sukses = 0; let gagal = 0;
+
+            barisData.forEach(baris => {
+                const kolom = baris.split('\t');
+                if (kolom.length >= 5) {
+                    const nis = kolom[0].trim();
+                    const nama = kolom[1].trim();
+                    const kelas = kolom[2].trim();
+                    const akademik = parseFloat(kolom[3].trim().replace(',', '.')) || 0;
+                    const pendukung = parseFloat(kolom[4].trim().replace(',', '.')) || 0;
+
+                    if(nis.toLowerCase().includes('nis')) return; // Skip header
+
+                    if (nis !== "" && nama !== "") {
+                        if (masterDatabaseNilai.some(s => s.nis === nis)) { gagal++; } 
+                        else {
+                            masterDatabaseNilai.push({
+                                nis: nis, nama: nama, kelas: kelas, akademik: akademik, pendukung: pendukung,
+                                sudahPilih: false, pilihan1: "", pilihan2: "", pilihan3: "", penempatan: "",
+                                minatSkor: 0, dominanRiasec: "-", timestamp: 0
+                            });
+                            sukses++;
+                        }
+                    }
+                }
+            });
+
+            alert(`Impor Selesai!\n✅ Berhasil: ${sukses} Siswa\n❌ Gagal/Duplikat: ${gagal} Siswa`);
+            document.getElementById('pasteExcel').value = '';
+            renderAdminInputTable();
+        }
+
+        function hitungSAK(siswa) {
+            return ((0.60 * siswa.akademik) + (0.20 * siswa.minatSkor) + (0.20 * siswa.pendukung)).toFixed(1);
+        }
+
+        function renderAdminInputTable() {
+            const tbody = document.getElementById('tabelMasterAdmin');
+            tbody.innerHTML = '';
+            masterDatabaseNilai.forEach(s => {
+                let badge = s.sudahPilih ? '<span class="badge bg-success">Sudah Tes</span>' : '<span class="badge bg-warning text-dark">Belum Tes</span>';
+                tbody.innerHTML += `<tr><td><b>${s.nis}</b></td><td>${s.nama}</td><td><span class="badge bg-light text-dark border">${s.kelas}</span></td><td>${s.akademik}</td><td>${s.pendukung}</td><td>${badge}</td></tr>`;
+            });
+        }
+
+        function renderAdminHasilDanKuota() {
+            let sisaBaruKuota = { ...kuotaPaket };
+            let siswaMemilih = masterDatabaseNilai.filter(s => s.sudahPilih);
+
+            siswaMemilih.sort((a,b) => {
+                let sakA = parseFloat(hitungSAK(a));
+                let sakB = parseFloat(hitungSAK(b));
+                if(sakB !== sakA) return sakB - sakA; 
+                if(b.pendukung !== a.pendukung) return b.pendukung - a.pendukung;
+                return a.timestamp - b.timestamp;
+            });
+
+            siswaMemilih.forEach(s => {
+                if (sisaBaruKuota[s.pilihan1] > 0) {
+                    s.penempatan = s.pilihan1 + " (Pil 1)";
+                    sisaBaruKuota[s.pilihan1]--;
+                } else if (sisaBaruKuota[s.pilihan2] > 0) {
+                    s.penempatan = s.pilihan2 + " (Pil 2)";
+                    sisaBaruKuota[s.pilihan2]--;
+                } else if (sisaBaruKuota[s.pilihan3] > 0) {
+                    s.penempatan = s.pilihan3 + " (Pil 3)";
+                    sisaBaruKuota[s.pilihan3]--;
+                } else {
+                    s.penempatan = "Cadangan (Kuota Penuh)";
+                }
+            });
+
+            const tbody = document.getElementById('adminTabelHasil');
+            tbody.innerHTML = siswaMemilih.length === 0 ? '<tr><td colspan="7" class="text-center text-muted py-4">Belum ada data pendaftar.</td></tr>' : '';
+
+            siswaMemilih.forEach((s, idx) => {
+                let badgeClass = s.penempatan.includes("Cadangan") ? "bg-danger" : "bg-success";
+                // Hanya menampilkan teks "Paket X" agar tabel tetap rapi
+                let pil1Teks = s.pilihan1.split(' ')[0] + " " + s.pilihan1.split(' ')[1];
+                let pil2Teks = s.pilihan2.split(' ')[0] + " " + s.pilihan2.split(' ')[1];
+                let pil3Teks = s.pilihan3.split(' ')[0] + " " + s.pilihan3.split(' ')[1];
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${idx+1}</td>
+                        <td><b>${s.nama}</b> <br><small class="text-muted">NIS: ${s.nis} | ${s.kelas}</small></td>
+                        <td><small>${pil1Teks}</small></td>
+                        <td><small>${pil2Teks}</small></td>
+                        <td><small>${pil3Teks}</small></td>
+                        <td class="text-primary fw-bold text-center">${hitungSAK(s)}</td>
+                        <td><span class="badge ${badgeClass}">${s.penempatan}</span></td>
+                    </tr>`;
+            });
+
+            const listKuota = document.getElementById('adminListKuota');
+            listKuota.innerHTML = '';
+            for(let p in kuotaPaket) {
+                listKuota.innerHTML += `<li class="list-group-item d-flex justify-content-between align-items-center"><span>${p}</span><span class="badge bg-dark rounded-pill">${sisaBaruKuota[p]} / ${kuotaPaket[p]}</span></li>`;
+            }
+        }
+
+        function renderSiswaKuota() {
+            const list = document.getElementById('siswaListKuota');
+            list.innerHTML = '';
+            for(let p in kuotaPaket) {
+                list.innerHTML += `<li class="list-group-item d-flex justify-content-between align-items-center"><span>${p}</span><span class="badge bg-secondary">${kuotaPaket[p]} Kursi</span></li>`;
+            }
+        }
+
+        function switchAdminTab(target) {
+            document.getElementById('btnMenuInput').classList.toggle('active', target === 'input');
+            document.getElementById('btnMenuHasil').classList.toggle('active', target === 'hasil');
+            document.getElementById('subAdminInput').classList.toggle('hidden-layout', target !== 'input');
+            document.getElementById('subAdminHasil').classList.toggle('hidden-layout', target !== 'hasil');
+            if(target === 'hasil') renderAdminHasilDanKuota();
+        }
+
+        function logout() {
+            userLogined = null;
+            document.getElementById('inputNis').value = '';
+            document.getElementById('inputToken').value = '';
+            document.getElementById('pageAdmin').classList.add('hidden-layout');
+            document.getElementById('pageSiswa').classList.add('hidden-layout');
+            document.getElementById('pageLogin').classList.remove('hidden-layout');
+            document.getElementById('formRiasec30Soal').reset();
+            
+            const categories = ['r','i','a','s','e','c'];
+            const colorClasses = ['bg-danger', 'bg-primary', 'bg-purple', 'bg-success', 'bg-warning text-dark', 'bg-secondary'];
+            
+            categories.forEach((cat, idx) => {
+                for(let i=1; i<=5; i++) {
+                    let el = document.getElementById(`${cat}_q${i}_lbl`);
+                    if(el) el.className = `badge badge-skor ${colorClasses[idx]}`;
+                    if(el) el.innerText = "Skor: 1";
+                }
+            });
+            
+            // Reset dropdown p2 dan p3 ke default
+            document.getElementById('siswaPilihan2').value = "";
+            document.getElementById('siswaPilihan3').value = "";
+        }
+    </script>
+</body>
+</html>
